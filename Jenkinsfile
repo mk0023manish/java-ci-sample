@@ -2,12 +2,8 @@ pipeline {
   agent any
 
   tools {
-    maven 'Maven3'   // you already installed this
-    jdk 'Java11'     // or Java17 if that's what you configured
-  }
-
-  environment {
-    MVN_CMD = isUnix() ? 'mvn' : 'mvn.cmd'
+    maven 'Maven3'   // must match your Jenkins tool name
+    jdk 'Java17'     // or Java17 if you configured that
   }
 
   stages {
@@ -20,8 +16,14 @@ pipeline {
     stage('Build') {
       steps {
         script {
-          if (isUnix()) { sh "${MVN_CMD} -v"; sh "${MVN_CMD} clean install -DskipTests=true" }
-          else          { bat "${MVN_CMD} -v"; bat "${MVN_CMD} clean install -DskipTests=true" }
+          def mvn = isUnix() ? 'mvn' : 'mvn.cmd'
+          if (isUnix()) {
+            sh "${mvn} -v"
+            sh "${mvn} clean install -DskipTests=true"
+          } else {
+            bat "${mvn} -v"
+            bat "${mvn} clean install -DskipTests=true"
+          }
         }
       }
     }
@@ -29,8 +31,12 @@ pipeline {
     stage('Test') {
       steps {
         script {
-          if (isUnix()) { sh "${MVN_CMD} test" }
-          else          { bat "${MVN_CMD} test" }
+          def mvn = isUnix() ? 'mvn' : 'mvn.cmd'
+          if (isUnix()) {
+            sh "${mvn} test"
+          } else {
+            bat "${mvn} test"
+          }
         }
       }
       post {
